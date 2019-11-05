@@ -14,37 +14,89 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Main {
+
 
     private static final String bearer = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IndpdHRuaWwxNjExIiwic2Vzc2lvbiI6IjA1OWk4dDBseGk5c3RjMGpreHVidmUiLCJpYXQiOjE1NzI1OTQyOTB9.dEZ9HmEEWEVrWhi2hhh05X5sei5YSnCpuWCDvWX1TxtJrTTPEr1sSYup4djv89cRqX9bZ-tCC1yUP1iq-1ySjP6Aml8EjgnveR8zwXngPC3v85q6mLXf0jR9qVYr4xSGO16h71RzrYa6rAu4IZEqpVEvlOfw6G1BMm6lxpEaB23ZL--LqwOwDha5BjcPXK2OyrNsgADSmRMn-cobIyLh6ab7O5DrdJpxCsPKKGrPEQLtPv6CNiSImM7_dN7VIYqTdPVfFcC0vxxkL3ge2rbN8AmCXn3q7ZgYpYZdV5YTDPrLZE7WJyT07m1UWUPR1XX9RMtgADrlPSKf_KWLdyZZkcTcjpholeaUWT9KSt6x3VdQ3qQPZkBQd3zcLK9VskcFaxB4sCqFxPq-TGOEIpybbca2ioOm8GG6207b2EyQW__B201VxDFQ5X0Xj0_4W6dKg6fwbaG-qehZZIv-zeZ1C-DfY7XqPqd7sooWsfepOo6lj5I1Z_RnCb3txZVxtPC6Ye3TssvOKKML2luUJmIdN5MXAby-IkwMrdCVfESMMlPM3uGuo07o61M89GWWn_GRVkzBQiqEhildRvRk6jDLEjkcq7PflQSIvJyHM0MDiZCd4V2eOah6gqhbHonuLvdFZzzxYJTiIkTWK8WirIXLnZTmihcb3fXWn8iS21M41D4";
     private static final String url = "https://api.nils-witt.codes";
 
     public static void main(String[] args) {
+        String path = null;
         ArrayList<Student> students;
         try {
+            //Getting path to executing jar file
+            File f = new File(System.getProperty("java.class.path"));
+            File dir = f.getAbsoluteFile().getParentFile();
+            path = dir.toString();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        if (path == null) return;
+
+        //Create Logger for Events
+        Logger logger = Logger.getLogger("TextLogger");
+        FileHandler fh;
+
+        try {
+            //Add output for log to logger
+            fh = new FileHandler(path + "/Log.log");
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return;
+        }
+
+
+        try {
             //Getting List of Students from Xslx
-            students = readXSLX();
 
+            students = readXSLX(path.concat("/Students.xlsx"), logger);
 
-            students.forEach(student -> {
-                //Getting AD Username
-                String aDUsername = fetchNMUsername(student);
-                if (!aDUsername.equals("")) {
-                    uploadStudentCourses(student.getNmName(), student.getCourses());
-                }
-            });
+            if (students != null) {
+                students.forEach(student -> {
+                    //Getting NetMan Username
+                    String aDUsername = fetchNMUsername(student, logger);
+                    if (!aDUsername.equals("")) {
+                        //Load Courses to Api
+                        uploadStudentCourses(student.getNmName(), student.getCourses(), logger);
+                    }
+                });
+            } else {
+                logger.info("No Students found");
+            }
+            logger.info("Done");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 
 
-    private static ArrayList<Student> readXSLX() throws Exception {
+    /**
+     * @param fileLocation
+     * @param logger
+     * @return
+     * @throws Exception
+     */
+    private static ArrayList<Student> readXSLX(String fileLocation, Logger logger) throws Exception {
 
         ArrayList<Student> students = new ArrayList<>();
         Boolean isLK = false;
@@ -53,7 +105,7 @@ public class Main {
         Iterator rows;
         Iterator cells;
         Iterator secondCells;
-        InputStream ExcelFileToRead = new FileInputStream("/Users/nilswitt/Downloads/Students.xlsx");
+        InputStream excelFileToRead = null;
         String lastname;
         String firstname;
         String grade = "";
@@ -71,9 +123,20 @@ public class Main {
         XSSFCell nameCell;
         XSSFCell secondCell = null;
 
+        logger.info("Starting XSLX read");
+
+        try {
+            excelFileToRead = new FileInputStream(fileLocation);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while opening File", e);
+            return null;
+        }
+
         //Öffnen der Datei
-        wb = new XSSFWorkbook(ExcelFileToRead);
+        logger.info("opening File");
+        wb = new XSSFWorkbook(excelFileToRead);
         //Erstes Arbeitsblatt öffnen
+        logger.info("opening Sheet");
         sheet = wb.getSheetAt(0);
         //Zeilen-Zeiger öffnen
         rows = sheet.rowIterator();
@@ -87,6 +150,7 @@ public class Main {
                 }
             }
         }
+        logger.info("Found Grade: ".concat(grade));
 
         //Solage durch die Zeilen gehen bis es keine definiten mehr gibt
         while (rows.hasNext()) {
@@ -100,7 +164,6 @@ public class Main {
                 if (cell.getCellType() == CellType.NUMERIC && nameCell.getCellType() == CellType.STRING) {
                     //Laden der nächsten Reihe, da diese LK, schriftlich oder mündlich enthält
                     secondRow = (XSSFRow) rows.next();
-
 
                     student = new Student();
                     //Nachnamen auslesen und Komma am Ende abtrennen
@@ -119,7 +182,7 @@ public class Main {
                     }
 
                     student.setFirstname(firstname);
-
+                    logger.info("new Student: ".concat(lastname).concat(",".concat(firstname)));
                     //Öffnen des Zellen-Zeigers in der Aktuellen Spalte
                     cells = row.cellIterator();
                     secondCells = secondRow.cellIterator();
@@ -160,9 +223,11 @@ public class Main {
                                 if (parts.length == 2) {
                                     if (isLK) {
                                         course.setCourseNumber("L" + parts[1]);
+                                        logger.info("LK : ".concat(cell.getStringCellValue()));
                                         isLK = false;
                                     } else {
                                         course.setCourseNumber(parts[1]);
+                                        logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
 
                                     course.setSubject(parts[0]);
@@ -182,25 +247,43 @@ public class Main {
         return students;
     }
 
-    private static void uploadStudentCourses(String username, ArrayList<Course> courses) {
+    /**
+     * @param username
+     * @param courses
+     * @param logger
+     */
+    private static void uploadStudentCourses(String username, ArrayList<Course> courses, Logger logger) {
+        //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
 
+        //Erstellen der payload die an die API gesendet wird
         RequestBody body = RequestBody.create(JSON, gson.toJson(courses));
+
+        //Erstellen der Anfrage an die API mit URL, payload und Authorisierung
         Request request = new Request.Builder()
                 .url(url.concat("/users/students/").concat(username).concat("/setCourses"))
                 .addHeader("Authorization", "Bearer ".concat(bearer))
                 .post(body)
                 .build();
         try {
+            //Anfrage an dir API senden
             Response response = client.newCall(request).execute();
+            logger.info("Setted Courses successfully for ".concat(username));
         } catch (Exception e) {
             e.printStackTrace();
+            logger.info("Error while setting Courses for ".concat(username));
         }
     }
 
-    private static String fetchNMUsername(Student student) {
+    /**
+     * @param student
+     * @param logger
+     * @return
+     */
+    private static String fetchNMUsername(Student student, Logger logger) {
+        //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
@@ -211,25 +294,33 @@ public class Main {
         Request request;
         Response response;
 
+        //Erstellen der Payload
         json = "{\"lastname\":\"" + student.getLastname() + "\",\"firstname\":\"" + student.getFirstname() + "\"}";
 
         body = RequestBody.create(JSON, json);
+        //Erstellen der Anfrage an die API
         request = new Request.Builder()
                 .url(url.concat("/users/find"))
                 .addHeader("Authorization", "Bearer ".concat(bearer))
                 .post(body)
                 .build();
         try {
+            logger.info("Searching LDAP User for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
+            //Anfrage senden
             response = client.newCall(request).execute();
             try {
+                //Antwort der API decoden
                 ldapStudents = gson.fromJson(response.body().string(), LdapStudent[].class);
+                //Normaler weise wird ein Benutzer oder keiner zurückgegeben
+                //Länge = anzahl der Benutzer die gefunden werden
                 if (ldapStudents.length == 1) {
+                    //Auslesen des Benutzernames aus dem zurückgegeben Benutzer und speichern im Student
                     student.setNmName(ldapStudents[0].getsAMAccountName());
-                    System.out.println("Found: ".concat(student.getLastname()).concat(": ").concat(student.getNmName()));
+                    logger.info("found :".concat(student.getNmName()).concat(" for: ").concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else if (ldapStudents.length == 0) {
-                    System.out.println("no user found for:" + student.getLastname());
+                    logger.warning("no user found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else {
-                    System.out.println("Multiple Students found :" + student.getLastname());
+                    logger.warning("multiple users found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 }
 
             } catch (Exception e) {
@@ -239,7 +330,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        //Rückgabe des Benutzernames oder "", wenn kein Benutzer gefunden wurde
         return student.getNmName();
     }
 }
