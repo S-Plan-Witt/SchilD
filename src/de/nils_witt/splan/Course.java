@@ -1,3 +1,8 @@
+
+/*
+ * Copyright (c) 2019.
+ */
+
 package de.nils_witt.splan;
 
 public class Course {
