@@ -14,9 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.FileHandler;
@@ -26,12 +24,9 @@ import java.util.logging.SimpleFormatter;
 
 public class Main {
 
-
-    private static final String bearer = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IndpdHRuaWwxNjExIiwic2Vzc2lvbiI6IjA1OWk4dDBseGk5c3RjMGpreHVidmUiLCJpYXQiOjE1NzI1OTQyOTB9.dEZ9HmEEWEVrWhi2hhh05X5sei5YSnCpuWCDvWX1TxtJrTTPEr1sSYup4djv89cRqX9bZ-tCC1yUP1iq-1ySjP6Aml8EjgnveR8zwXngPC3v85q6mLXf0jR9qVYr4xSGO16h71RzrYa6rAu4IZEqpVEvlOfw6G1BMm6lxpEaB23ZL--LqwOwDha5BjcPXK2OyrNsgADSmRMn-cobIyLh6ab7O5DrdJpxCsPKKGrPEQLtPv6CNiSImM7_dN7VIYqTdPVfFcC0vxxkL3ge2rbN8AmCXn3q7ZgYpYZdV5YTDPrLZE7WJyT07m1UWUPR1XX9RMtgADrlPSKf_KWLdyZZkcTcjpholeaUWT9KSt6x3VdQ3qQPZkBQd3zcLK9VskcFaxB4sCqFxPq-TGOEIpybbca2ioOm8GG6207b2EyQW__B201VxDFQ5X0Xj0_4W6dKg6fwbaG-qehZZIv-zeZ1C-DfY7XqPqd7sooWsfepOo6lj5I1Z_RnCb3txZVxtPC6Ye3TssvOKKML2luUJmIdN5MXAby-IkwMrdCVfESMMlPM3uGuo07o61M89GWWn_GRVkzBQiqEhildRvRk6jDLEjkcq7PflQSIvJyHM0MDiZCd4V2eOah6gqhbHonuLvdFZzzxYJTiIkTWK8WirIXLnZTmihcb3fXWn8iS21M41D4";
-    private static final String url = "https://api.nils-witt.codes";
-
     public static void main(String[] args) {
         String path = null;
+        Config configRead = null;
         ArrayList<Student> students;
         try {
             //Getting path to executing jar file
@@ -61,6 +56,12 @@ public class Main {
             e.printStackTrace();
             return;
         }
+        configRead = loadConfig(logger, path);
+
+        if (configRead == null) {
+            return;
+        }
+        final Config config = configRead;
 
 
         try {
@@ -71,10 +72,10 @@ public class Main {
             if (students != null) {
                 students.forEach(student -> {
                     //Getting NetMan Username
-                    String aDUsername = fetchNMUsername(student, logger);
+                    String aDUsername = fetchNMUsername(student, logger, config);
                     if (!aDUsername.equals("")) {
                         //Load Courses to Api
-                        uploadStudentCourses(student.getNmName(), student.getCourses(), logger);
+                        uploadStudentCourses(student.getNmName(), student.getCourses(), logger, config);
                     }
                 });
             } else {
@@ -87,6 +88,62 @@ public class Main {
         }
 
 
+    }
+
+    private static Config loadConfig(Logger logger, String path) {
+        Gson gson = new Gson();
+        Config config = null;
+        try {
+            InputStream is = new FileInputStream(path + "/config.json");
+            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+
+            String line = buf.readLine();
+            StringBuilder sb = new StringBuilder();
+
+            while (line != null) {
+                sb.append(line).append("\n");
+                line = buf.readLine();
+            }
+
+            String fileAsString = sb.toString();
+            try {
+                config = gson.fromJson(fileAsString, Config.class);
+                if (!verifyBearer(logger, config.getBearer(), config.getUrl())) {
+                    config = null;
+                }
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error while reading config: ", e);
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Config open failed", e);
+        }
+        return config;
+    }
+
+    private static boolean verifyBearer(Logger logger, String bearer, String url) {
+        OkHttpClient client = new OkHttpClient();
+        Boolean isValid = false;
+        Request request = new Request.Builder()
+                .url(url.concat("/jwt/verify/"))
+                .addHeader("Authorization", "Bearer ".concat(bearer))
+                .build();
+        try {
+            //Anfrage an dir API senden
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                isValid = true;
+                logger.info("Bearer valid");
+            } else {
+                logger.log(Level.WARNING, "Bearer invalid");
+            }
+        } catch (java.net.UnknownHostException e) {
+            logger.log(Level.WARNING, "Host not found", e);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Excetion while verifying Bearer", e);
+        }
+
+        return isValid;
     }
 
 
@@ -252,7 +309,7 @@ public class Main {
      * @param courses
      * @param logger
      */
-    private static void uploadStudentCourses(String username, ArrayList<Course> courses, Logger logger) {
+    private static void uploadStudentCourses(String username, ArrayList<Course> courses, Logger logger, Config config) {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -263,8 +320,8 @@ public class Main {
 
         //Erstellen der Anfrage an die API mit URL, payload und Authorisierung
         Request request = new Request.Builder()
-                .url(url.concat("/users/students/").concat(username).concat("/setCourses"))
-                .addHeader("Authorization", "Bearer ".concat(bearer))
+                .url(config.getUrl().concat("/users/students/").concat(username).concat("/setCourses"))
+                .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
         try {
@@ -282,7 +339,7 @@ public class Main {
      * @param logger
      * @return
      */
-    private static String fetchNMUsername(Student student, Logger logger) {
+    private static String fetchNMUsername(Student student, Logger logger, Config config) {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -300,8 +357,8 @@ public class Main {
         body = RequestBody.create(JSON, json);
         //Erstellen der Anfrage an die API
         request = new Request.Builder()
-                .url(url.concat("/users/find"))
-                .addHeader("Authorization", "Bearer ".concat(bearer))
+                .url(config.getUrl().concat("/users/find"))
+                .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
         try {
