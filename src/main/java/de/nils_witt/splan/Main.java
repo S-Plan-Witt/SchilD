@@ -5,12 +5,14 @@
 package de.nils_witt.splan;
 
 import com.google.gson.Gson;
+import com.sun.istack.internal.Nullable;
 import okhttp3.*;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -27,53 +29,26 @@ public class Main {
         String path = null;
         Config configRead = null;
         ArrayList<Student> students;
-        try {
-            //Getting path to executing jar file
-            File f = new File(System.getProperty("java.class.path"));
-            File dir = f.getAbsoluteFile().getParentFile();
-            path = dir.toString();
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
+        path = getJarPath();
         if (path == null) return;
-
-        //Create Logger for Events
-        Logger logger = Logger.getLogger("TextLogger");
-        FileHandler fh;
-
-        try {
-            //Add output for log to logger
-            fh = new FileHandler(path + "/Log.log");
-            logger.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return;
-        }
+        Logger logger = initLogger(path);
+        if (logger == null) return;
         configRead = loadConfig(logger, path);
+        if (configRead == null) return;
 
-        if (configRead == null) {
-            return;
-        }
         final Config config = configRead;
 
-
         try {
-            //Getting List of Students from Xslx
-
+            //Laden Schülerliste
             students = readXSLX(path.concat("/Students.xlsx"), logger);
 
             if (students != null) {
                 students.forEach(student -> {
-                    //Getting NetMan Username
+                    //Laden des Netman-Benutzernames für den Schüler
                     String aDUsername = fetchNMUsername(student, logger, config);
                     if (!aDUsername.equals("")) {
-                        //Load Courses to Api
+                        //Setzen der Kurse in der Api für den Schüler
                         uploadStudentCourses(student.getNmName(), student.getCourses(), logger, config);
                     }
                 });
@@ -89,10 +64,65 @@ public class Main {
 
     }
 
+    /**
+     * Ermitteln des Pfades zu "dieser" Datei und Rückgabe des Ordners in dem sich diese befindent
+     *
+     * @return path to jar parent folder
+     */
+    private static String getJarPath() {
+        String path = null;
+
+        try {
+            //Ermitteln des Pfades zu dieser Klasse bzw zur Jar Datei
+            File f = new File(System.getProperty("java.class.path"));
+            //Ordnerpfad als String setzen
+            File dir = f.getAbsoluteFile().getParentFile();
+            path = dir.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return path;
+    }
+
+    /**
+     * Erstellt einen Logger mit Ausgabe in eine Datei (Log.log) im Arbeitsverzeichnis
+     *
+     * @param path to this jar (or any working directory)
+     * @return logger for this program
+     */
+    @Nullable
+    private static Logger initLogger(String path) {
+        Logger logger = Logger.getLogger("TextLogger");
+        FileHandler fh;
+
+        try {
+            //Setzen der Ausgabedatei
+            fh = new FileHandler(path + "/Log.log");
+            logger.addHandler(fh);
+            //Einstellen der Formatierung des Logs
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return logger;
+    }
+
+
+    /**
+     * Config.json laden
+     *
+     * @param logger
+     * @param path   to config.json
+     * @return return config if successful loaded the file
+     */
     private static Config loadConfig(Logger logger, String path) {
         Gson gson = new Gson();
         Config config = null;
         try {
+            //Laden der Datei und lesen aller Zeilen, die in einem String gespeichert werden, da json erwartet wird.
             InputStream is = new FileInputStream(path + "/config.json");
             BufferedReader buf = new BufferedReader(new InputStreamReader(is));
 
@@ -106,8 +136,11 @@ public class Main {
 
             String fileAsString = sb.toString();
             try {
+                //String der Datei in in Config Objekt laden.
                 config = gson.fromJson(fileAsString, Config.class);
+                //Überprüfen ob die config gültig ist.
                 if (!verifyBearer(logger, config.getBearer(), config.getUrl())) {
+                    //Falls nicht config null setzen.
                     config = null;
                 }
             } catch (Exception e) {
@@ -117,19 +150,28 @@ public class Main {
         } catch (Exception e) {
             logger.log(Level.WARNING, "Config open failed", e);
         }
+        //Wenn die Konfig erfolgreich geladen und validiert wurde, wird diese zurückgegeben, sonst wir null.
         return config;
     }
 
-    private static boolean verifyBearer(Logger logger, String bearer, String url) {
+    /**
+     * Überprüfen der Gültigkeit des Zugriffstoken auf die Api
+     *
+     * @param logger
+     * @param bearer token for api access
+     * @param url    base api url
+     * @return validity of bearer to given url
+     */
+    private static boolean verifyBearer(Logger logger, String bearer, @NotNull String url) {
         OkHttpClient client = new OkHttpClient();
-        Boolean isValid = false;
+        boolean isValid = false;
         Request request = new Request.Builder()
                 .url(url.concat("/user"))
                 .addHeader("Authorization", "Bearer ".concat(bearer))
                 .build();
         try {
-            //Anfrage an dir API senden
             Response response = client.newCall(request).execute();
+            // Api gibt den status 200 zurück, wenn alles  gültig ist.
             if (response.code() == 200) {
                 isValid = true;
                 logger.info("Bearer valid");
@@ -137,9 +179,10 @@ public class Main {
                 logger.log(Level.WARNING, "Bearer invalid");
             }
         } catch (java.net.UnknownHostException e) {
+            //URL der Api ist nicht gültig
             logger.log(Level.WARNING, "Host not found", e);
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Excetion while verifying Bearer", e);
+            logger.log(Level.WARNING, "Exception while verifying Bearer", e);
         }
 
         return isValid;
@@ -147,12 +190,13 @@ public class Main {
 
 
     /**
-     * @param fileLocation
+     * Laden der Schülerinformationen aus der XSLX in eine ArrayList
+     * @param fileLocation location of the xslx file
      * @param logger
-     * @return
+     * @return arraylist of students
      * @throws Exception
      */
-    private static ArrayList<Student> readXSLX(String fileLocation, Logger logger) throws Exception {
+    private static ArrayList<Student> readXSLX(String fileLocation, Logger logger) throws IOException {
 
         ArrayList<Student> students = new ArrayList<>();
         Boolean isLK = false;
@@ -306,8 +350,9 @@ public class Main {
     }
 
     /**
-     * @param username
-     * @param courses
+     * Setzt die Kurse für den Schüler in der Api
+     * @param username username of student
+     * @param courses arraylist of courses from the student
      * @param logger
      */
     private static void uploadStudentCourses(String username, ArrayList<Course> courses, Logger logger, Config config) {
@@ -340,9 +385,10 @@ public class Main {
     }
 
     /**
-     * @param student
+     * Sucht auf dem AD Server nach dem Benutzernamen des Schülers
+     * @param student student object containing first and lastname
      * @param logger
-     * @return
+     * @return ActiveDirectory username for student
      */
     private static String fetchNMUsername(Student student, Logger logger, Config config) {
         //Json Encoder/Decoder für die Api Kommunikation
