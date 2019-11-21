@@ -14,19 +14,7 @@ public class Student {
     private ArrayList<Course> courses = new ArrayList<>();
     private String nmName = "";
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public void addCourse(Course course){
+    public void addCourse(Course course) {
         this.courses.add(course);
     }
 
@@ -34,19 +22,31 @@ public class Student {
         return firstname;
     }
 
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
     public String getLastname() {
         return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public Integer getId() {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public ArrayList<Course> getCourses() {
         return courses;
     }
 
-    public void getInfo(){
+    public void getInfo() {
         System.out.println(id.toString().concat(":").concat(lastname).concat(", ").concat(firstname).concat(" Courses: " + courses.size()));
     }
 

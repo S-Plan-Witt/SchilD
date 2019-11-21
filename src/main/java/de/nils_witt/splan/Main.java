@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright (c) 2019.
  */
@@ -17,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -125,7 +124,7 @@ public class Main {
         OkHttpClient client = new OkHttpClient();
         Boolean isValid = false;
         Request request = new Request.Builder()
-                .url(url.concat("/jwt/verify/"))
+                .url(url.concat("/user"))
                 .addHeader("Authorization", "Bearer ".concat(bearer))
                 .build();
         try {
@@ -286,7 +285,9 @@ public class Main {
                                         course.setCourseNumber(parts[1]);
                                         logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
-
+                                    if (parts[0].equals("EK")) {
+                                        parts[0] = "GO";
+                                    }
                                     course.setSubject(parts[0]);
                                     //Kurs dem Schüler hinzufügen
                                     student.addCourse(course);
@@ -313,20 +314,24 @@ public class Main {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
-
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
+                .build();
         //Erstellen der payload die an die API gesendet wird
         RequestBody body = RequestBody.create(JSON, gson.toJson(courses));
 
         //Erstellen der Anfrage an die API mit URL, payload und Authorisierung
         Request request = new Request.Builder()
-                .url(config.getUrl().concat("/users/students/").concat(username).concat("/setCourses"))
+                .url(config.getUrl().concat("/students/").concat(username).concat("/courses"))
                 .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
         try {
             //Anfrage an dir API senden
             Response response = client.newCall(request).execute();
+            response.close();
             logger.info("Setted Courses successfully for ".concat(username));
         } catch (Exception e) {
             e.printStackTrace();
@@ -343,7 +348,11 @@ public class Main {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
+                .build();
 
         LdapStudent[] ldapStudents;
         RequestBody body;
@@ -357,7 +366,7 @@ public class Main {
         body = RequestBody.create(JSON, json);
         //Erstellen der Anfrage an die API
         request = new Request.Builder()
-                .url(config.getUrl().concat("/users/find"))
+                .url(config.getUrl().concat("/students/find"))
                 .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
