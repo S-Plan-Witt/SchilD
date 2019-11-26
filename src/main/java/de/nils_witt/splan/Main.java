@@ -92,7 +92,7 @@ public class Main {
      * @return logger for this program
      */
     @Nullable
-    private static Logger initLogger(String path) {
+    private static Logger initLogger(@NotNull String path) {
         Logger logger = Logger.getLogger("TextLogger");
         FileHandler fh;
 
@@ -114,11 +114,11 @@ public class Main {
     /**
      * Config.json laden
      *
-     * @param logger
+     * @param logger Filelogger
      * @param path   to config.json
      * @return return config if successful loaded the file
      */
-    private static Config loadConfig(Logger logger, String path) {
+    private static Config loadConfig(@NotNull Logger logger, @NotNull String path) {
         Gson gson = new Gson();
         Config config = null;
         try {
@@ -157,12 +157,12 @@ public class Main {
     /**
      * Überprüfen der Gültigkeit des Zugriffstoken auf die Api
      *
-     * @param logger
+     * @param logger Filelogger
      * @param bearer token for api access
      * @param url    base api url
      * @return validity of bearer to given url
      */
-    private static boolean verifyBearer(Logger logger, String bearer, @NotNull String url) {
+    private static boolean verifyBearer(@NotNull Logger logger, @NotNull String bearer, @NotNull String url) {
         OkHttpClient client = new OkHttpClient();
         boolean isValid = false;
         Request request = new Request.Builder()
@@ -200,9 +200,8 @@ public class Main {
     private static ArrayList<Student> readXSLX(@NotNull String fileLocation, @NotNull Logger logger) throws IOException {
 
         ArrayList<Student> students = new ArrayList<>();
-        Boolean isLK = false;
+        boolean isLK = false;
         Course course;
-        Gson gson = new Gson();
         Iterator rows;
         Iterator cells;
         Iterator secondCells;
@@ -361,9 +360,9 @@ public class Main {
      * Setzt die Kurse für den Schüler in der Api
      * @param username username of student
      * @param courses arraylist of courses from the student
-     * @param logger
+     * @param logger Filelogger
      */
-    private static void uploadStudentCourses(String username, ArrayList<Course> courses, Logger logger, Config config) {
+    private static void uploadStudentCourses(@NotNull String username, @NotNull ArrayList<Course> courses, @NotNull Logger logger, @NotNull Config config) {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -395,10 +394,10 @@ public class Main {
     /**
      * Sucht auf dem AD Server nach dem Benutzernamen des Schülers
      * @param student student object containing first and lastname
-     * @param logger
+     * @param logger Filelogger
      * @return ActiveDirectory username for student
      */
-    private static String fetchNMUsername(Student student, Logger logger, Config config) {
+    private static String fetchNMUsername(@NotNull Student student, @NotNull Logger logger, @NotNull Config config) {
         //Json Encoder/Decoder für die Api Kommunikation
         Gson gson = new Gson();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
