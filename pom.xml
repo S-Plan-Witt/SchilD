@@ -48,7 +48,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <finalName>S-Plan_DataConnector</finalName>
+                    <finalName>S-Plan_SchildConnnector</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
