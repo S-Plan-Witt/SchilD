@@ -9,6 +9,7 @@ public class Course {
     private String grade = "";
     private String subject = "";
     private String group = "";
+    private boolean klausuren = false;
 
 
     public void setGrade(String grade) {
@@ -19,7 +20,11 @@ public class Course {
         this.subject = subject;
     }
 
-    public void setCourseNumber(String courseNumber) {
-        this.group = courseNumber;
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public void setKlausuren(boolean klausuren) {
+        this.klausuren = klausuren;
     }
 }

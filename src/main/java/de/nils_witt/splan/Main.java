@@ -192,11 +192,12 @@ public class Main {
     /**
      * Laden der Schülerinformationen aus der XSLX in eine ArrayList
      * @param fileLocation location of the xslx file
-     * @param logger
+     * @param logger Filelogger
      * @return arraylist of students
-     * @throws Exception
+     * @throws IOException is thrown when supplied file path is not valid
      */
-    private static ArrayList<Student> readXSLX(String fileLocation, Logger logger) throws IOException {
+    @Nullable
+    private static ArrayList<Student> readXSLX(@NotNull String fileLocation, @NotNull Logger logger) throws IOException {
 
         ArrayList<Student> students = new ArrayList<>();
         Boolean isLK = false;
@@ -296,6 +297,7 @@ public class Main {
                         if (secondCells.hasNext()) {
                             secondCell = (XSSFCell) secondCells.next();
                         }
+                        boolean displayKlausuren = false;
 
                         if (cell.getCellType() == CellType.STRING) {
                             //Falls Zelle leer ist überspringen/ nur leerzeichen enthält
@@ -308,6 +310,8 @@ public class Main {
                                             if (!content.equals("")) {
                                                 if (content.substring(0, 2).equals("LK")) {
                                                     isLK = true;
+                                                } else if (content.equals("GKS")) {
+                                                    displayKlausuren = true;
                                                 }
                                             }
                                         } catch (Exception e) {
@@ -322,15 +326,19 @@ public class Main {
                                 //Überprüfen, ob der Kursname aus Fach und Nummer besteht
                                 if (parts.length == 2) {
                                     if (isLK) {
-                                        course.setCourseNumber("L" + parts[1]);
+                                        course.setGroup("L" + parts[1]);
+                                        course.setKlausuren(true);
                                         logger.info("LK : ".concat(cell.getStringCellValue()));
                                         isLK = false;
                                     } else {
-                                        course.setCourseNumber(parts[1]);
+                                        course.setGroup(parts[1]);
                                         logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
                                     if (parts[0].equals("EK")) {
                                         parts[0] = "GO";
+                                    }
+                                    if (displayKlausuren) {
+                                        course.setKlausuren(true);
                                     }
                                     course.setSubject(parts[0]);
                                     //Kurs dem Schüler hinzufügen
