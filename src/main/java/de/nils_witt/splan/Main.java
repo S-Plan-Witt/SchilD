@@ -26,8 +26,8 @@ import java.util.logging.SimpleFormatter;
 public class Main {
 
     public static void main(String[] args) {
-        String path = null;
-        Config configRead = null;
+        String path;
+        Config configRead;
         ArrayList<Student> students;
 
         path = getJarPath();
@@ -205,7 +205,7 @@ public class Main {
         Iterator rows;
         Iterator cells;
         Iterator secondCells;
-        InputStream excelFileToRead = null;
+        InputStream excelFileToRead;
         String lastname;
         String firstname;
         String grade = "";
@@ -296,7 +296,8 @@ public class Main {
                         if (secondCells.hasNext()) {
                             secondCell = (XSSFCell) secondCells.next();
                         }
-                        boolean displayKlausuren = false;
+                        boolean displayExams = false;
+                        boolean zk = false;
 
                         if (cell.getCellType() == CellType.STRING) {
                             //Falls Zelle leer ist überspringen/ nur leerzeichen enthält
@@ -310,7 +311,9 @@ public class Main {
                                                 if (content.substring(0, 2).equals("LK")) {
                                                     isLK = true;
                                                 } else if (content.equals("GKS")) {
-                                                    displayKlausuren = true;
+                                                    displayExams = true;
+                                                } else if (content.equals("ZK")) {
+                                                    zk = true;
                                                 }
                                             }
                                         } catch (Exception e) {
@@ -326,18 +329,33 @@ public class Main {
                                 if (parts.length == 2) {
                                     if (isLK) {
                                         course.setGroup("L" + parts[1]);
-                                        course.setKlausuren(true);
+                                        course.setExams(true);
                                         logger.info("LK : ".concat(cell.getStringCellValue()));
                                         isLK = false;
                                     } else {
                                         course.setGroup(parts[1]);
                                         logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
-                                    if (parts[0].equals("EK")) {
-                                        parts[0] = "GO";
+                                    switch (parts[0]) {
+                                        case "EK":
+                                            parts[0] = "GO";
+                                            break;
+                                        case "S0":
+                                            parts[0] = "S";
+                                            break;
+                                        case "IV":
+                                            parts[0] = "VOKU";
+                                            break;
+                                        case "E-PK":
+                                            parts[0] = "E";
+                                            course.setGroup("PK");
+
                                     }
-                                    if (displayKlausuren) {
-                                        course.setKlausuren(true);
+                                    if (displayExams) {
+                                        course.setExams(true);
+                                    }
+                                    if (zk) {
+                                        course.setGroup(course.getGroup().concat("-ZK"));
                                     }
                                     course.setSubject(parts[0]);
                                     //Kurs dem Schüler hinzufügen
@@ -347,7 +365,7 @@ public class Main {
                             }
                         }
                     }
-                    //Schuüler der Schülerliste hinzufügen
+                    //Schüler der Schülerliste hinzufügen
                     students.add(student);
                 }
             }
