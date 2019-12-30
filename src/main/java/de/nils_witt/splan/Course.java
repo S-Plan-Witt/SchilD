@@ -9,7 +9,7 @@ public class Course {
     private String grade = "";
     private String subject = "";
     private String group = "";
-    private boolean klausuren = false;
+    private boolean exams = false;
 
 
     public void setGrade(String grade) {
@@ -24,7 +24,23 @@ public class Course {
         this.group = group;
     }
 
-    public void setKlausuren(boolean klausuren) {
-        this.klausuren = klausuren;
+    public String getGrade() {
+        return grade;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public boolean isExams() {
+        return exams;
+    }
+
+    public void setExams(boolean exams) {
+        this.exams = exams;
     }
 }
