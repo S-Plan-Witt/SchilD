@@ -293,9 +293,8 @@ public class Main {
 
                     while (cells.hasNext()) {
                         cell = (XSSFCell) cells.next();
-                        if (secondCells.hasNext()) {
-                            secondCell = (XSSFCell) secondCells.next();
-                        }
+                        secondCell = secondRow.getCell(cell.getColumnIndex());
+
                         boolean displayExams = false;
                         boolean zk = false;
 
@@ -437,7 +436,7 @@ public class Main {
         body = RequestBody.create(JSON, json);
         //Erstellen der Anfrage an die API
         request = new Request.Builder()
-                .url(config.getUrl().concat("/students/find"))
+                .url(config.getUrl().concat("/users/ldap/find"))
                 .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
@@ -452,8 +451,8 @@ public class Main {
                 //Länge = anzahl der Benutzer die gefunden werden
                 if (ldapStudents.length == 1) {
                     //Auslesen des Benutzernames aus dem zurückgegeben Benutzer und speichern im Student
-                    student.setNmName(ldapStudents[0].getsAMAccountName());
-                    logger.info("found :".concat(student.getNmName()).concat(" for: ").concat(student.getLastname()).concat(",").concat(student.getFirstname()));
+                    student.setNmName(ldapStudents[0].getUsername());
+                    logger.info("found: ".concat(student.getNmName()).concat(" for: ").concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else if (ldapStudents.length == 0) {
                     logger.warning("no user found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else {

@@ -1,36 +1,36 @@
 
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2020.
  */
 
 package de.nils_witt.splan;
 
 public class LdapStudent {
-    private String sn;
-    private String givenName;
-    private String sAMAccountName;
+    private String lastName;
+    private String firstName;
+    private String username;
 
-    public String getSn() {
-        return sn;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSn(String sn) {
-        this.sn = sn;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public String getGivenName() {
-        return givenName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getsAMAccountName() {
-        return sAMAccountName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setsAMAccountName(String sAMAccountName) {
-        this.sAMAccountName = sAMAccountName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
