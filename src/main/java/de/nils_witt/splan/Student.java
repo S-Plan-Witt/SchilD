@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2020.
  */
 
 package de.nils_witt.splan;
