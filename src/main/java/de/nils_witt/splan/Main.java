@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2020.
  */
 
 package de.nils_witt.splan;
@@ -307,7 +307,7 @@ public class Main {
                                         try {
                                             String content = secondCell.getStringCellValue();
                                             if (!content.equals("")) {
-                                                if (content.substring(0, 2).equals("LK")) {
+                                                if (content.startsWith("LK")) {
                                                     isLK = true;
                                                 } else if (content.equals("GKS")) {
                                                     displayExams = true;
@@ -393,7 +393,7 @@ public class Main {
 
         //Erstellen der Anfrage an die API mit URL, payload und Authorisierung
         Request request = new Request.Builder()
-                .url(config.getUrl().concat("/students/").concat(username).concat("/courses"))
+                .url(config.getUrl().concat("/users/").concat(username).concat("/courses"))
                 .addHeader("Authorization", "Bearer ".concat(config.getBearer()))
                 .post(body)
                 .build();
