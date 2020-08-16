@@ -336,9 +336,6 @@ public class Main {
                                         logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
                                     switch (parts[0]) {
-                                        case "EK":
-                                            parts[0] = "GO";
-                                            break;
                                         case "S0":
                                             parts[0] = "S";
                                             break;
