@@ -81,7 +81,7 @@ public class Main {
      *
      * @return path to jar parent folder
      */
-    private static String getJarPath() {
+    private static @Nullable String getJarPath() {
         String path = null;
 
         try {
@@ -130,7 +130,7 @@ public class Main {
      * @param path   to config.json
      * @return return config if successful loaded the file
      */
-    private static Config loadConfig(@NotNull Logger logger, @NotNull String path) {
+    private static @Nullable Config loadConfig(@NotNull Logger logger, @NotNull String path) {
         Gson gson = new Gson();
         Config config = null;
         try {
@@ -264,7 +264,7 @@ public class Main {
         //Zellen in einer Row
         XSSFCell cell;
         XSSFCell nameCell;
-        XSSFCell secondCell = null;
+        XSSFCell secondCell;
 
         logger.info("Starting XSLX read");
 
@@ -475,11 +475,13 @@ public class Main {
             logger.info("Searching LDAP User for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
             //Anfrage senden
             response = client.newCall(request).execute();
-            try {
-                //Antwort der API decoden
+
+
+            if(response.body() != null){
+                //Rückgabe der Api auswerten
                 ldapStudents = gson.fromJson(response.body().string(), LdapStudent[].class);
                 //Normaler weise wird ein Benutzer oder keiner zurückgegeben
-                //Länge = anzahl der Benutzer die gefunden werden
+                //Länge = Anzahl der Benutzer die gefunden werden
                 if (ldapStudents.length == 1) {
                     //Auslesen des Benutzernames aus dem zurückgegeben Benutzer und speichern im Student
                     student.setNmName(ldapStudents[0].getUsername());
@@ -489,9 +491,6 @@ public class Main {
                 } else {
                     logger.warning("multiple users found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
 
         } catch (Exception e) {

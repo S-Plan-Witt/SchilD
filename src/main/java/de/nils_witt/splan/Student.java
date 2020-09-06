@@ -4,13 +4,15 @@
 
 package de.nils_witt.splan;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class Student {
     private String firstname = "";
     private String lastname = "";
     private Integer id = 0;
-    private ArrayList<Course> courses = new ArrayList<>();
+    private final ArrayList<Course> courses = new ArrayList<>();
     private String nmName = "";
 
     public void addCourse(Course course) {
@@ -41,7 +43,7 @@ public class Student {
         this.id = id;
     }
 
-    public ArrayList<Course> getCourses() {
+    public @NotNull ArrayList<Course> getCourses() {
         return courses;
     }
 
