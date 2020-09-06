@@ -354,8 +354,6 @@ public class Main {
                                                     isLK = true;
                                                 } else if (content.equals("GKS")) {
                                                     displayExams = true;
-                                                } else if (content.equals("ZK")) {
-                                                    zk = true;
                                                 }
                                             }
                                         } catch (Exception e) {
