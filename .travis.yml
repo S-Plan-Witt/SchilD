@@ -1,1 +1,4 @@
+dist: focal
 language: java
+jdk:
+  - oraclejdk15
