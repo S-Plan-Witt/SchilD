@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2021.
  */
 
-package de.nils_witt.splan;
+package de.nils_witt.splan.models;
 
 import org.jetbrains.annotations.NotNull;
 
