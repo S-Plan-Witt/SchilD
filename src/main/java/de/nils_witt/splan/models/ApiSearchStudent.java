@@ -7,6 +7,7 @@ package de.nils_witt.splan.models;
 public class ApiSearchStudent {
     private String firstname;
     private String lastname;
+    private String birthday;
 
     public ApiSearchStudent() {
     }
@@ -14,6 +15,7 @@ public class ApiSearchStudent {
     public ApiSearchStudent(String firstname, String lastname) {
         this.firstname = firstname;
         this.lastname = lastname;
+        this.birthday = "*";
     }
 
     public String getFirstname() {

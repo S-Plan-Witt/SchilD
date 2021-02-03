@@ -5,10 +5,7 @@
 package de.nils_witt.splan.connectors;
 
 import com.google.gson.Gson;
-import de.nils_witt.splan.models.Config;
-import de.nils_witt.splan.models.Course;
-import de.nils_witt.splan.models.LdapStudent;
-import de.nils_witt.splan.models.Student;
+import de.nils_witt.splan.models.*;
 import okhttp3.*;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -84,11 +81,10 @@ public class Api {
         String json;
         Request request;
         Response response;
+        ApiSearchStudent searchObject;
 
-        //TODO create Payload Object
-        json = "{\"lastname\":\"" + student.getLastname() + "\",\"firstname\":\"" + student.getFirstname() + "\"}";
-
-        body = RequestBody.create(JSON, json);
+        searchObject = new ApiSearchStudent(student.getFirstname(), student.getLastname());
+        body = RequestBody.create(JSON, gson.toJson(searchObject));
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
