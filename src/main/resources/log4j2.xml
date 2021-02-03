@@ -3,7 +3,7 @@
   ~ Copyright (c) 2021.
   -->
 
-<Configuration status="WARN">
+<Configuration status="WARN" packages="de.nils_witt.splan.gui">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] %c{1}:%L - %msg%n"/>
