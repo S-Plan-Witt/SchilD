@@ -7,27 +7,24 @@ package de.nils_witt.splan;
 import de.nils_witt.splan.connectors.Api;
 import de.nils_witt.splan.models.Course;
 import de.nils_witt.splan.models.Student;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class XLSXFileHandler {
-    private ArrayList<Student> students;
-    private String filePath;
-    private Logger logger;
-    private Api api;
+    private final ArrayList<Student> students;
+    private final String filePath;
+    private final Logger logger;
+    private final Api api;
 
     public XLSXFileHandler(String filePath, Logger logger, Api api) {
         this.filePath = filePath;
@@ -36,25 +33,20 @@ public class XLSXFileHandler {
         this.students = new ArrayList<>();
     }
 
-    public void processFile(){
-        String path;
+    public void processFile() {
 
         try {
             //Laden Schülerliste
             read();
 
-            if (this.students != null) {
-                this.students.forEach(student -> {
-                    //Laden des Netman-Benutzernames für den Schüler
-                    String aDUsername = api.fetchNMUsername(student);
-                    if (!aDUsername.equals("")) {
-                        //Setzen der Kurse in der Api für den Schüler
-                        api.uploadStudentCourses(student.getNmName(), student.getCourses());
-                    }
-                });
-            } else {
-                this.logger.info("No Students found");
-            }
+            this.students.forEach(student -> {
+                //Laden des Netman-Benutzernames für den Schüler
+                String aDUsername = api.fetchNMUsername(student);
+                if (!aDUsername.equals("")) {
+                    //Setzen der Kurse in der Api für den Schüler
+                    api.uploadStudentCourses(student.getNmName(), student.getCourses());
+                }
+            });
             this.logger.info("Done");
 
         } catch (Exception e) {
@@ -64,6 +56,7 @@ public class XLSXFileHandler {
 
     /**
      * Laden der Schülerinformationen aus der XSLX in eine ArrayList
+     *
      * @throws IOException is thrown when supplied file path is not valid
      */
     private void read() throws IOException {
@@ -79,14 +72,10 @@ public class XLSXFileHandler {
         String grade = "";
         String[] parts;
         Student student;
-        //Excel Datei/ Workbook
         XSSFWorkbook wb;
-        //Arbeitsblatt
         XSSFSheet sheet;
-        //Zeilen auf dem sheet
         XSSFRow row;
         XSSFRow secondRow;
-        //Zellen in einer Row
         XSSFCell cell;
         XSSFCell nameCell;
         XSSFCell secondCell;
@@ -96,7 +85,7 @@ public class XLSXFileHandler {
         try {
             excelFileToRead = new FileInputStream(this.filePath);
         } catch (Exception e) {
-            this.logger.log(Level.WARNING, "Error while opening File", e);
+            this.logger.warn("Error while opening File", e);
             return;
         }
 
@@ -213,14 +202,11 @@ public class XLSXFileHandler {
                                         course.setExams(true);
                                     }
                                     course.setSubject(parts[0]);
-                                    //Kurs dem Schüler hinzufügen
                                     student.addCourse(course);
                                 }
-
                             }
                         }
                     }
-                    //Schüler der Schülerliste hinzufügen
                     this.students.add(student);
                 }
             }

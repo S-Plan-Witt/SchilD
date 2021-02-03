@@ -9,10 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class Student {
+    private final ArrayList<Course> courses = new ArrayList<>();
     private String firstname = "";
     private String lastname = "";
     private Integer id = 0;
-    private final ArrayList<Course> courses = new ArrayList<>();
     private String nmName = "";
 
     public void addCourse(Course course) {
