@@ -8,7 +8,7 @@ before_install:
   - ls target/
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
-  file: "FILE TO UPLOAD"
+  api_key: $GITHUB_KEY
+  file: "target/S-Plan_SchildConnnector-jar-with-dependencies.jar"
   skip_cleanup: true
   draft: true
