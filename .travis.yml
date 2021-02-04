@@ -2,3 +2,12 @@ dist: focal
 language: java
 jdk:
   - oraclejdk15
+
+before_install:
+  - mvn assembly:single
+deploy:
+  provider: releases
+  api_key: "GITHUB OAUTH TOKEN"
+  file: "FILE TO UPLOAD"
+  skip_cleanup: true
+  draft: true
