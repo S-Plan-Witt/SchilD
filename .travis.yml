@@ -5,6 +5,7 @@ jdk:
 
 before_install:
   - mvn assembly:single
+  - ls target/
 deploy:
   provider: releases
   api_key: "GITHUB OAUTH TOKEN"
