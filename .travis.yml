@@ -13,7 +13,7 @@ deploy:
   draft: true
 
 after_deploy:
-  - docker build -t docker.pkg.github.com/nils-witt/s-plan_schild/s-plan_schild:"$DOCKER_TAG" .
-  - docker tag docker.pkg.github.com/nils-witt/s-plan_schild/s-plan_schild:"$DOCKER_TAG" docker.pkg.github.com/nils-witt/s-plan_schild/s-plan_schild:"$TRAVIS_COMMIT"
-  - echo "$GITHUB_KEY" | docker login https://docker.pkg.github.com -u "$GITHUB_USER" --password-stdin
-  - docker push docker.pkg.github.com/nils-witt/s-plan_schild/s-plan_schild
+  - docker build -t ghcr.io/nils-witt/s-plan_schild:"$DOCKER_TAG" .
+  - docker tag ghcr.io/nils-witt/s-plan_schild:"$DOCKER_TAG" ghcr.io/nils-witt/s-plan_schild:"$TRAVIS_COMMIT"
+  - echo "$GITHUB_KEY" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+  - docker push ghcr.io/nils-witt/s-plan_schild
