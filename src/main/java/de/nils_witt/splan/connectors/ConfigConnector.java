@@ -59,7 +59,7 @@ public class ConfigConnector {
         return config;
     }
 
-    public static void copyDefaultConfig() throws IOException, URISyntaxException {
+    public static void copyDefaultConfig() throws IOException {
         InputStream in;
         BufferedReader inputFileReader;
         File outputFileLocation;
