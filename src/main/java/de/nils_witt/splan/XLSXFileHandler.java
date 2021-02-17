@@ -153,7 +153,6 @@ public class XLSXFileHandler {
                         secondCell = secondRow.getCell(cell.getColumnIndex());
 
                         boolean displayExams = false;
-                        boolean zk = false;
 
                         if (cell.getCellType() == CellType.STRING) {
                             //Falls Zelle leer ist überspringen/ nur leerzeichen enthält
@@ -191,12 +190,11 @@ public class XLSXFileHandler {
                                         this.logger.info("Found Course: ".concat(cell.getStringCellValue()));
                                     }
                                     switch (parts[0]) {
-                                        case "IV":
-                                            parts[0] = "VOKU";
-                                            break;
-                                        case "E-PK":
+                                        case "IV" -> parts[0] = "VOKU";
+                                        case "E-PK" -> {
                                             parts[0] = "E";
                                             course.setGroup("PK");
+                                        }
                                     }
                                     if (displayExams) {
                                         course.setExams(true);
