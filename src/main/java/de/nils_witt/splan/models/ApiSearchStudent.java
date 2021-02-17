@@ -5,12 +5,9 @@
 package de.nils_witt.splan.models;
 
 public class ApiSearchStudent {
-    private String firstname;
-    private String lastname;
-    private String birthday;
-
-    public ApiSearchStudent() {
-    }
+    private final String firstname;
+    private final String lastname;
+    private final String birthday;
 
     public ApiSearchStudent(String firstname, String lastname) {
         this.firstname = firstname;
@@ -18,19 +15,4 @@ public class ApiSearchStudent {
         this.birthday = "*";
     }
 
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
 }

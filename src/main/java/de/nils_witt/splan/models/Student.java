@@ -35,20 +35,8 @@ public class Student {
         this.lastname = lastname;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public @NotNull ArrayList<Course> getCourses() {
         return courses;
-    }
-
-    public void getInfo() {
-        System.out.println(id.toString().concat(":").concat(lastname).concat(", ").concat(firstname).concat(" Courses: " + courses.size()));
     }
 
     public String getNmName() {
