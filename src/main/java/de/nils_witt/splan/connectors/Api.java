@@ -78,13 +78,12 @@ public class Api {
         OkHttpClient client;
         LdapStudent[] ldapStudents;
         RequestBody body;
-        String json;
         Request request;
         Response response;
         ApiSearchStudent searchObject;
 
         searchObject = new ApiSearchStudent(student.getFirstname(), student.getLastname());
-        body = RequestBody.create(JSON, gson.toJson(searchObject));
+        body = RequestBody.create( gson.toJson(searchObject),JSON);
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -132,7 +131,7 @@ public class Api {
         Request request;
         Response response;
 
-        body = RequestBody.create(JSON, gson.toJson(courses));
+        body = RequestBody.create(gson.toJson(courses), JSON);
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
