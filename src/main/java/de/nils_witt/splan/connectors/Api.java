@@ -83,7 +83,7 @@ public class Api {
         ApiSearchStudent searchObject;
 
         searchObject = new ApiSearchStudent(student.getFirstname(), student.getLastname());
-        body = RequestBody.create( gson.toJson(searchObject),JSON);
+        body = RequestBody.create(gson.toJson(searchObject), JSON);
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)

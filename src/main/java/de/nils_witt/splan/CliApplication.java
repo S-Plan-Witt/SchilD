@@ -18,12 +18,12 @@ public class CliApplication implements Runnable {
     Api api;
     Logger logger;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         try {
             CliApplication cliApplication = new CliApplication();
             Thread thread = new Thread(cliApplication);
             thread.start();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -31,7 +31,7 @@ public class CliApplication implements Runnable {
     @Override
     public void run() {
         initApplication();
-        if(xlsxFileHandler != null){
+        if (xlsxFileHandler != null) {
             xlsxFileHandler.processFile();
         }
     }

@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 public class LoggerConnector {
 
     /**
-     *
      * @return application Logger
      */
     public static Logger getLogger() {
