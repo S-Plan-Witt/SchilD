@@ -8,7 +8,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key: $GITHUB_KEY
-  file: "target/S-Plan_SchildConnnector-jar-with-dependencies.jar"
+  file: "target/S-Plan_SchildConnector-jar-with-dependencies.jar"
   skip_cleanup: true
   draft: true
 
