@@ -122,7 +122,6 @@
                                 <mainClass>de.nils_witt.splan.Main</mainClass>
                                 <preCp>anything</preCp>
                             </classPath>
-                            <icon>favicon.ico</icon>
                             <jre>
                                 <minVersion>1.6.0</minVersion>
                                 <jdkPreference>preferJre</jdkPreference>
