@@ -88,9 +88,9 @@
                             <mainClass>de.nils_witt.splan.Main</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <descriptors>
+                        <descriptor>src/assembly/jar.xml</descriptor>
+                    </descriptors>
                 </configuration>
             </plugin>
             <plugin>
