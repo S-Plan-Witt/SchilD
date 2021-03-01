@@ -79,6 +79,9 @@ public final class TextAreaAppender extends AbstractAppender {
      */
     @Override
     public void append(LogEvent event) {
+        if (textArea == null){
+            return;
+        }
         readLock.lock();
 
         final String message = new String(getLayout().toByteArray(event));
