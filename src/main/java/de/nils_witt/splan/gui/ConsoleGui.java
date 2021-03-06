@@ -5,17 +5,17 @@
 package de.nils_witt.splan.gui;
 
 import de.nils_witt.splan.CliApplication;
-import de.nils_witt.splan.connectors.LoggerConnector;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ConsoleGui extends Application {
-
+    private final Logger logger = LogManager.getLogger(ConsoleGui.class);
     /**
      * JavaFX Starter
      */
@@ -30,7 +30,6 @@ public class ConsoleGui extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        Logger logger = LoggerConnector.getLogger();
 
         Scene scene;
         TextArea area;
@@ -55,7 +54,7 @@ public class ConsoleGui extends Application {
             primaryStage.setTitle("Console");
             primaryStage.sizeToScene();
             primaryStage.show();
-            LoggerConnector.getLogger().fatal("Controller Done");
+            logger.fatal("Controller Done");
         } catch (Exception e) {
             e.printStackTrace();
         }
