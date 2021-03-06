@@ -7,6 +7,7 @@ package de.nils_witt.splan;
 import de.nils_witt.splan.connectors.Api;
 import de.nils_witt.splan.models.Course;
 import de.nils_witt.splan.models.Student;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -23,12 +24,11 @@ import java.util.Iterator;
 public class XLSXFileHandler {
     private final ArrayList<Student> students;
     private final String filePath;
-    private final Logger logger;
     private final Api api;
+    private final Logger logger = LogManager.getLogger(XLSXFileHandler.class);
 
-    public XLSXFileHandler(String filePath, Logger logger, Api api) {
+    public XLSXFileHandler(String filePath, Api api) {
         this.filePath = filePath;
-        this.logger = logger;
         this.api = api;
         this.students = new ArrayList<>();
     }

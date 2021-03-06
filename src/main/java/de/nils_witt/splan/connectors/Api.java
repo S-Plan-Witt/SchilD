@@ -7,6 +7,7 @@ package de.nils_witt.splan.connectors;
 import com.google.gson.Gson;
 import de.nils_witt.splan.models.*;
 import okhttp3.*;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Creates connectivity to the backend
  */
 public class Api {
-    private final Logger logger = LoggerConnector.getLogger();
+    private final Logger logger = LogManager.getLogger(Api.class);
     private final Config config;
     private final Gson gson = new Gson();
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -92,7 +93,7 @@ public class Api {
                 .build();
 
         request = new Request.Builder()
-                .url(this.config.getUrl().concat("/users/ldap/find"))
+                .url(this.config.getUrl().concat("/users/find"))
                 .addHeader("Authorization", "Bearer ".concat(this.config.getBearer()))
                 .post(body)
                 .build();

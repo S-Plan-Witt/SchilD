@@ -7,16 +7,16 @@ package de.nils_witt.splan;
 import de.nils_witt.splan.connectors.Api;
 import de.nils_witt.splan.connectors.ConfigConnector;
 import de.nils_witt.splan.connectors.FileSystemConnector;
-import de.nils_witt.splan.connectors.LoggerConnector;
 import de.nils_witt.splan.models.Config;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
 public class CliApplication implements Runnable {
-    Config config;
-    XLSXFileHandler xlsxFileHandler;
-    Api api;
-    Logger logger;
+    private Config config;
+    private XLSXFileHandler xlsxFileHandler;
+    private Api api;
+    private final Logger logger = LogManager.getLogger(CliApplication.class);
 
     public static void main(String[] args) {
         try {
@@ -42,7 +42,6 @@ public class CliApplication implements Runnable {
     private void initApplication() {
 
         FileSystemConnector.createDataDirs();
-        logger = LoggerConnector.getLogger();
         if (logger == null) return;
 
         config = ConfigConnector.loadConfig(logger);
@@ -62,7 +61,7 @@ public class CliApplication implements Runnable {
             return;
         }
         api = new Api(config);
-        xlsxFileHandler = new XLSXFileHandler(FileSystemConnector.getWorkingDir().toString().concat("/data/Students.xlsx"), logger, api);
+        xlsxFileHandler = new XLSXFileHandler(FileSystemConnector.getWorkingDir().toString().concat("/data/Students.xlsx"), api);
 
         logger.info("Init Complete");
     }
