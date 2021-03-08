@@ -141,7 +141,7 @@ public class Api {
                 .build();
 
         request = new Request.Builder()
-                .url(this.config.getUrl().concat("/users/").concat(username).concat("/courses"))
+                .url(this.config.getUrl().concat("/users/username/").concat(username).concat("/courses"))
                 .addHeader("Authorization", "Bearer ".concat(this.config.getBearer()))
                 .post(body)
                 .build();
