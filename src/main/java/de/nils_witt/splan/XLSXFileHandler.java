@@ -36,14 +36,13 @@ public class XLSXFileHandler {
     public void processFile() {
 
         try {
-            //Laden Schülerliste
+            //Laden der XLSX Datei
             read();
 
+            //Benutzernamen von der Api beziehen
             this.students.forEach(student -> {
-                //Laden des Netman-Benutzernames für den Schüler
                 String aDUsername = api.fetchNMUsername(student);
                 if (!aDUsername.equals("")) {
-                    //Setzen der Kurse in der Api für den Schüler
                     api.uploadStudentCourses(student.getNmName(), student.getCourses());
                 }
             });

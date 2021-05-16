@@ -19,6 +19,10 @@ public class Student {
         this.courses.add(course);
     }
 
+    public ArrayList<Course> getCourses() {
+        return courses;
+    }
+
     public String getFirstname() {
         return firstname;
     }
@@ -35,8 +39,8 @@ public class Student {
         this.lastname = lastname;
     }
 
-    public @NotNull ArrayList<Course> getCourses() {
-        return courses;
+    public Integer getId() {
+        return id;
     }
 
     public String getNmName() {

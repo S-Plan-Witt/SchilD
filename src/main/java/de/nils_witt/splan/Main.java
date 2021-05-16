@@ -11,12 +11,18 @@ import org.apache.logging.log4j.Logger;
 public class Main {
     private final static Logger logger = LogManager.getLogger(Main.class);
 
+    /**
+     * Main cli entrypoint
+     * @param args
+     */
     public static void main(String[] args) {
         boolean gui = true;
 
         try {
-            if(System.getenv("GUI").equals("false")){
-                gui = false;
+            if(System.getenv("GUI") != null){
+                if(System.getenv("GUI").equals("false")){
+                    gui = false;
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -27,6 +33,5 @@ public class Main {
         }else {
             CliApplication.main(args);
         }
-
     }
 }

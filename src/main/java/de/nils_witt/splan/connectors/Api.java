@@ -37,7 +37,7 @@ public class Api {
      * @param logger Filelogger
      * @param bearer token for api access
      * @param url    base api url
-     * @return validity of bearer to given url
+     * @return boolean validity of bearer to given url
      */
     public static boolean verifyBearer(@NotNull Logger logger, @NotNull String bearer, @NotNull String url) {
         OkHttpClient client;
@@ -104,13 +104,19 @@ public class Api {
             if (response.body() != null) {
                 ldapStudents = gson.fromJson(Objects.requireNonNull(response.body()).string(), LdapStudent[].class);
 
-                if (ldapStudents.length == 1) {
+                if (ldapStudents.length >= 1) {
+                    if(ldapStudents.length > 1){
+                        this.logger.warn("multiple users found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
+                        for (LdapStudent ldapStudent : ldapStudents) {
+                            System.out.println(ldapStudent.getUsername());
+                        }
+                    }
                     student.setNmName(ldapStudents[0].getUsername());
-                    this.logger.info("found: ".concat(student.getNmName()).concat(" for: ").concat(student.getLastname()).concat(",").concat(student.getFirstname()));
+                    this.logger.info("found/used: ".concat(student.getNmName()).concat(" for: ").concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else if (ldapStudents.length == 0) {
                     this.logger.warn("no user found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
                 } else {
-                    this.logger.warn("multiple users found for: ".concat(student.getLastname()).concat(",").concat(student.getFirstname()));
+
                 }
             }
 

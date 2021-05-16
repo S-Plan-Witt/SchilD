@@ -25,4 +25,20 @@ public class Course {
     public void setExams(boolean exams) {
         this.exams = exams;
     }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public boolean isExams() {
+        return exams;
+    }
 }
